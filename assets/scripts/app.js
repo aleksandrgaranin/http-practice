@@ -11,8 +11,20 @@ function sendHttpRequest(method, url, data) {
         xhr.open(method, url); // 'https://jsonplaceholder.typicode.com/posts'
         xhr.responseType = 'json' // automaticly parsing JSON in to JavaScript Object
         xhr.onload = function () {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                resolve(xhr.response);
+            } else {
+                reject(new Error('something went wrong!'));
+            }
             resolve(xhr.response)
         };
+
+        xhr.onerror = function() {
+            reject(new Error('Failed to send requests!'));
+            console.log(xhr.response)
+            console.log(xhr.status)
+        };
+
         xhr.send(JSON.stringify(data));
     });
     return promise;    
@@ -36,17 +48,20 @@ function sendHttpRequest(method, url, data) {
 // OR
 
 async function fetchPosts() {
-    const responseData = await sendHttpRequest('GET', 'https://jsonplaceholder.typicode.com/posts');    
-    console.log(listElement)    
-    for (const post of responseData){
-        const postEl = document.importNode(postTemplate.content, true);
-        postEl.querySelector('h2').textContent = post.title.toUpperCase();
-        postEl.querySelector('p').textContent = post.body;
-        postEl.querySelector('li').id = post.id;
-        // postEl.querySelector('button').addEventListener('click', deletePost.bind(this, post.id))
-        listElement.append(postEl)
-    }           
-}
+    try {
+        const responseData = await sendHttpRequest('GET', 'https://jsonplaceholder.typicode.com/pos');    
+        for (const post of responseData){
+            const postEl = document.importNode(postTemplate.content, true);
+            postEl.querySelector('h2').textContent = post.title.toUpperCase();
+            postEl.querySelector('p').textContent = post.body;
+            postEl.querySelector('li').id = post.id;
+            // postEl.querySelector('button').addEventListener('click', deletePost.bind(this, post.id))
+            listElement.append(postEl)
+        }  
+    } catch (error) {
+        alert(error.message);
+    }
+ }
 
 async function cretePost(title, content) {
     const userId = Math.random();
