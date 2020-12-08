@@ -6,28 +6,46 @@ const postList = document.querySelector('ul')
 
 
 function sendHttpRequest(method, url, data) {
-    const promise = new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open(method, url); // 'https://jsonplaceholder.typicode.com/posts'
-        xhr.responseType = 'json' // automaticly parsing JSON in to JavaScript Object
-        xhr.onload = function () {
-            if (xhr.status >= 200 && xhr.status < 300) {
-                resolve(xhr.response);
-            } else {
-                reject(new Error('something went wrong!'));
-            }
-            resolve(xhr.response)
-        };
-
-        xhr.onerror = function() {
-            reject(new Error('Failed to send requests!'));
-            console.log(xhr.response)
-            console.log(xhr.status)
-        };
-
-        xhr.send(JSON.stringify(data));
+    // const promise = new Promise((resolve, reject) => {
+    //    const xhr = new XMLHttpRequest();
+    //    xhr.setRequestHeader('Content-Type', 'application/jason');   
+    //     xhr.open(method, url); // 'https://jsonplaceholder.typicode.com/posts'
+    //     xhr.responseType = 'json' // automaticly parsing JSON in to JavaScript Object
+    //     xhr.onload = function () {
+    //         if (xhr.status >= 200 && xhr.status < 300) {
+    //             resolve(xhr.response);
+    //         } else {
+    //             reject(new Error('something went wrong!'));
+    //         }
+    //         resolve(xhr.response)
+    //     };
+    //     xhr.onerror = function() {
+    //         reject(new Error('Failed to send requests!'));
+    //         console.log(xhr.response)
+    //         console.log(xhr.status)
+    //     };
+    //     xhr.send(JSON.stringify(data));
+    // });
+    // return promise;    
+    return fetch(url,{
+        method: method,
+        data: JSON.stringify(data),
+        headers: {
+            'Content-Type': 'application/jason'
+        }
+    }).then( response => {
+        if (response.status >= 200 && response.status < 300){
+            return response.json()
+        } else {
+            return response.json().then(errData => {
+                console.log(errData);
+                throw new Error('something went wrong - server-side')
+            })
+        }
+    }).catch(error => {
+        console.log(error)
+        throw new Error('Something went wrong')
     });
-    return promise;    
 }
 
 // function fetchPosts() {
@@ -49,7 +67,7 @@ function sendHttpRequest(method, url, data) {
 
 async function fetchPosts() {
     try {
-        const responseData = await sendHttpRequest('GET', 'https://jsonplaceholder.typicode.com/pos');    
+        const responseData = await sendHttpRequest('GET', 'https://jsonplaceholder.typicode.com/posts');    
         for (const post of responseData){
             const postEl = document.importNode(postTemplate.content, true);
             postEl.querySelector('h2').textContent = post.title.toUpperCase();
