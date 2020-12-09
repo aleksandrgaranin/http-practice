@@ -65,10 +65,27 @@ function sendHttpRequest(method, url, data) {
 
 // OR
 
+// async function fetchPosts() {
+//     try {
+//         const responseData = await sendHttpRequest('GET', 'https://jsonplaceholder.typicode.com/posts');    
+//         for (const post of responseData){
+//             const postEl = document.importNode(postTemplate.content, true);
+//             postEl.querySelector('h2').textContent = post.title.toUpperCase();
+//             postEl.querySelector('p').textContent = post.body;
+//             postEl.querySelector('li').id = post.id;
+//             // postEl.querySelector('button').addEventListener('click', deletePost.bind(this, post.id))
+//             listElement.append(postEl)
+//         }  
+//     } catch (error) {
+//         alert(error.message);
+//     }
+//  }
+
 async function fetchPosts() {
     try {
-        const responseData = await sendHttpRequest('GET', 'https://jsonplaceholder.typicode.com/posts');    
-        for (const post of responseData){
+        const response = await axios.get('https://jsonplaceholder.typicode.com/posts');    
+        console.log(response)
+        for (const post of response.data){
             const postEl = document.importNode(postTemplate.content, true);
             postEl.querySelector('h2').textContent = post.title.toUpperCase();
             postEl.querySelector('p').textContent = post.body;
@@ -78,8 +95,10 @@ async function fetchPosts() {
         }  
     } catch (error) {
         alert(error.message);
+        console.log(error.response)
     }
- }
+}
+
 
 async function cretePost(title, content) {
     const userId = Math.random();
@@ -89,7 +108,8 @@ async function cretePost(title, content) {
         userId: userId
     };
 
-    sendHttpRequest('POST', 'https://jsonplaceholder.typicode.com/posts', post);
+    response = await axios.post('https://jsonplaceholder.typicode.com/posts', post);
+    console.log(response)
 }
 
 // async function deletePost(id) {
@@ -100,19 +120,19 @@ async function cretePost(title, content) {
 
 fetchButton.addEventListener('click', () => {
     fetchPosts()
-})
+});
 form.addEventListener('submit', event => {
     event.preventDefault();
     const enteredTitle = event.currentTarget.querySelector('#title').value
     const enteredContent = event.currentTarget.querySelector('#content').value
 
     cretePost(enteredTitle, enteredContent)
-})
+});
 
 postList.addEventListener('click', event => {
     if (event.target.tagName === 'BUTTON') {
         const postId = event.target.closest('li').id
         console.log("Clicked on button", postId)
-        sendHttpRequest('DELETE',`https://jsonplaceholder.typicode.com/posts/${postId}`)
+        axios.delete(`https://jsonplaceholder.typicode.com/posts/${postId}`)
     }
-})
+});
